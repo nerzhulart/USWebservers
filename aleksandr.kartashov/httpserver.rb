@@ -1,5 +1,15 @@
+#!/usr/bin/ruby
+
 require 'socket'
 require 'time'
+
+# --------------------------------------------------------------------------------
+
+iface = "127.0.0.1"
+port  = 8080
+log_file = "http.log"
+
+# --------------------------------------------------------------------------------
 
 mimes = {
   "html" => "text/html",
@@ -16,27 +26,7 @@ mimes = {
 
 at_cache = { }
 
-#ctl_in, ctl_out = IO.pipe
-#conns = [ctl_in]
-
 # --------------------------------------------------------------------------------
-
-#Thread.new {
-#  puts 'Worker started'
-#
-#  while true 
-#    cs = IO.select(conns)[0]
-#
-#    if cs.count(ctl_in) > 0
-#      puts 'Waker'
-#      ctl_in.read(1)
-#      next
-#    end
-#
-#    for c in cs
-#      
-#  end
-#}
 
 class BadRequest < RuntimeError
 end
@@ -99,6 +89,10 @@ class HttpResponse
     @headers = v
   end
 
+  def code
+    @code
+  end
+
   def code=(v) 
     @code = v
   end
@@ -128,14 +122,33 @@ class HttpResponse
   end
 end
 
-# --------------------------------------------------------------------------------
 
-server = TCPServer.new('127.0.0.1', 8080)
-while (remote = server.accept) 
+class Log 
+  def initialize(log_fp)
+    @log = File.new log_fp, "w"
+  end
+
+  def write(message)
+    @log.write "[#{Time.now}] #{message}\n"
+  end
+end
+
+# --------------------------------------------------------------------------------
+# Program entry
+
+server = TCPServer.new iface, port
+log    = Log.new log_file
+
+while remote = server.accept
+  rem_addr = remote.addr
+  client = "#{rem_addr[2]} (#{rem_addr[3]})"
+  log.write "Accepted connection from #{client}"
+
   stat = 0
   req = []
   line = ""
   
+  # read until an empty line
   while stat != 2
     rd = remote.read(1)
     b = rd[0]
@@ -153,14 +166,17 @@ while (remote = server.accept)
     end
   end
 
-
   res = HttpResponse.new
 
   begin
     req = HttpRequest.new(req)
     ext = /\.(.+)$/.match(req.path).captures[0]
 
+    log.write "Requested #{req.path} by #{client}"
+
     if ext != "rb"
+      # reply with a local file
+
       mime = mimes[ext]
       if mime == nil
         mime = "text/plain"
@@ -169,6 +185,7 @@ while (remote = server.accept)
       f = File.new(req.path)
       res.mime = mime
 
+      # last modification control
       mt = req.headers["If-Modified-Since"]
       if mt != nil
         if Time.parse(mt) >= f.mtime
@@ -183,6 +200,7 @@ while (remote = server.accept)
       res.headers["Last-Modified"] = f.mtime.to_s
 
     else
+      # run a Ruby program and reply with its stdout
       pipe = nil
 
       if req.params != nil
@@ -190,12 +208,6 @@ while (remote = server.accept)
       else 
         pipe = IO.popen("ruby " + req.path, "w+")
       end
-
-      #if pipe.none?
-      #  raise Exception
-      #end
-
-      #puts 'OK'
 
       pipe.close_write
       res.content = pipe.read
@@ -223,9 +235,8 @@ while (remote = server.accept)
   end
 
   res.write remote
+  log.write "Responded with #{res.code} to #{client}"
+  
   remote.close
-
-  #conns += [remote]
-  #ctl_out.write '1'
 end
 
