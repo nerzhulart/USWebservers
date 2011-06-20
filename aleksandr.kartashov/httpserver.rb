@@ -1,9 +1,22 @@
 #!/usr/bin/ruby
 
+#
+# Aleksandr Kartashov's simple HTTP server
+#
+# Issue ./httpserver.rb to run it. It will bind to the 
+# TCP port 8080 on the loopback interface. Modify variables 
+# iface and port in the configuration section of the script
+# to change the interface and/or port to be bound to.
+#
+# Loging will be stored into the file htt.log by default.
+# Modify the log_file variable to change it. 
+#
+
 require 'socket'
 require 'time'
 
 # --------------------------------------------------------------------------------
+# Configuration
 
 iface = "127.0.0.1"
 port  = 8080
