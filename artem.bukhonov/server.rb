@@ -1,5 +1,7 @@
-require 'socket'
+#This is a simple implementaion of HTTP server
+#Usage: server <path_to_docs> <port>
 
+require 'socket'
 class HttpServer
     @session
     @request
