@@ -1,5 +1,10 @@
-require 'socket'
+#This is a simple implementaion of HTTP server
+#Usage: server <path_to_docs> <port>
+#Author: Bukhonov Artem
+#This server supports main mime types and http codes (200, 304, 400, 404, 500).
+#You can see request log in <path_to_docs>/log.txt
 
+require 'socket'
 class HttpServer
     @session
     @request
