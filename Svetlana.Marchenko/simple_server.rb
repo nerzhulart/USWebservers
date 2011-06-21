@@ -6,6 +6,8 @@
   http status codes (200, 400, 404, 500) support.
   No https.
   
+  command for server start:
+    ruby simple_server.rb [path to the base folder]
 =end
 
 $:.unshift(File.expand_path("./"))
@@ -111,7 +113,7 @@ end
 
 
 if (ARGV.length > 0)
-	basePath = ARGV[0]
+	basePath = File.expand_path(ARGV[0])
 else
 	basePath = File.expand_path("./")
 end
