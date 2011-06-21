@@ -1,5 +1,28 @@
+#!/usr/bin/ruby
+
+#
+# Aleksandr Kartashov's simple HTTP server
+#
+# Issue ./httpserver.rb to run it. It will bind to the 
+# TCP port 8080 on the loopback interface. Modify variables 
+# iface and port in the configuration section of the script
+# to change the interface and/or port to be bound to.
+#
+# Loging will be stored into the file htt.log by default.
+# Modify the log_file variable to change it. 
+#
+
 require 'socket'
 require 'time'
+
+# --------------------------------------------------------------------------------
+# Configuration
+
+iface = "127.0.0.1"
+port  = 8080
+log_file = "http.log"
+
+# --------------------------------------------------------------------------------
 
 mimes = {
   "html" => "text/html",
@@ -14,48 +37,23 @@ mimes = {
   "pdf" => "application/pdf"
 }
 
-at_cache = { }
-
-#ctl_in, ctl_out = IO.pipe
-#conns = [ctl_in]
-
 # --------------------------------------------------------------------------------
-
-#Thread.new {
-#  puts 'Worker started'
-#
-#  while true 
-#    cs = IO.select(conns)[0]
-#
-#    if cs.count(ctl_in) > 0
-#      puts 'Waker'
-#      ctl_in.read(1)
-#      next
-#    end
-#
-#    for c in cs
-#      
-#  end
-#}
 
 class BadRequest < RuntimeError
 end
 
 class HttpRequest
   def initialize(lines)
-    m = /GET \/(.+) HTTP/.match(lines[0])
+    m = /GET (\/.*) HTTP/.match lines[0]
 
     if m != nil
       @resource = m.captures[0]
+      @resource = @resource.slice 1, @resource.length
     else
-      @resource = nil
-    end
-
-    if @resource == nil
       raise BadRequest
     end
 
-    m = /(.+)\?(.+)/.match(@resource)
+    m = /(.+)\?(.+)/.match @resource
     if m != nil
       @resource = m.captures[0]
       @params = m.captures[1]
@@ -99,6 +97,10 @@ class HttpResponse
     @headers = v
   end
 
+  def code
+    @code
+  end
+
   def code=(v) 
     @code = v
   end
@@ -128,14 +130,54 @@ class HttpResponse
   end
 end
 
-# --------------------------------------------------------------------------------
 
-server = TCPServer.new('127.0.0.1', 8080)
-while (remote = server.accept) 
+class Log 
+  def initialize(log_fp)
+    @log = File.new log_fp, "a"
+  end
+
+  def write(message)
+    @log.write "[#{Time.now}] #{message}\n"
+    @log.flush
+  end
+end
+
+# --------------------------------------------------------------------------------
+# HTTP error handling
+
+def report_http_error(code, response, info = nil)
+  http_error_replies = {
+    400 => ["400 Bad request", "<html><head><title>Bad request</title></head><body>Bad request</body></html>"],
+    404 => ["404 Not found", "<html><head><title>Path not found</title></head><body>Not found: $INFO</body></html>"],
+    505 => ["500 Internal server error", "<html><head><title>Internal server error</title></head><body>Internal server error</body></html>"]
+  }
+
+  response.mime = "text/html"
+  response.code = http_error_replies[code][0]
+
+  if info != nil
+    response.content = http_error_replies[code][1].sub("$INFO", info)
+  else
+    response.content = http_error_replies[code][1]
+  end
+end
+
+# --------------------------------------------------------------------------------
+# Program entry
+
+server = TCPServer.new iface, port
+log    = Log.new log_file
+
+while remote = server.accept
+  rem_addr = remote.addr
+  client = "#{rem_addr[2]} (#{rem_addr[3]})"
+  log.write "Accepted connection from #{client}"
+
   stat = 0
   req = []
   line = ""
   
+  # read until an empty line
   while stat != 2
     rd = remote.read(1)
     b = rd[0]
@@ -153,22 +195,30 @@ while (remote = server.accept)
     end
   end
 
-
   res = HttpResponse.new
 
   begin
     req = HttpRequest.new(req)
-    ext = /\.(.+)$/.match(req.path).captures[0]
+    m = /\.(.+)$/.match(req.path)
+    ext = nil
+    if m != nil
+      ext = m.captures[0]
+    end
+
+    log.write "Requested #{req.path} by #{client}"
 
     if ext != "rb"
+      # reply with a local file
+
       mime = mimes[ext]
-      if mime == nil
-        mime = "text/plain"
-      end 
+      #if mime == nil
+      #  mime = "text/plain"
+      #end 
   
-      f = File.new(req.path)
+      f = File.new req.path
       res.mime = mime
 
+      # last modification control
       mt = req.headers["If-Modified-Since"]
       if mt != nil
         if Time.parse(mt) >= f.mtime
@@ -183,49 +233,43 @@ while (remote = server.accept)
       res.headers["Last-Modified"] = f.mtime.to_s
 
     else
-      pipe = nil
+      f = File.new req.path
+      expr = f.read
+      res.content = eval expr      
+      res.mime = "text/html"
 
-      if req.params != nil
-        pipe = IO.popen("ruby " + req.path + " " + req.params.sub("&", " "), "w+")
-      else 
-        pipe = IO.popen("ruby " + req.path, "w+")
-      end
+      # run a Ruby program and reply with its stdout
 
-      #if pipe.none?
-      #  raise Exception
+      #pipe = nil
+      #
+      #if req.params != nil
+      #  pipe = IO.popen("ruby " + req.path + " " + req.params.sub("&", " "), "w+")
+      #else 
+      #  pipe = IO.popen("ruby " + req.path, "w+")
       #end
 
-      #puts 'OK'
-
-      pipe.close_write
-      res.content = pipe.read
-      pipe.close_read
+      #pipe.close_write
+      #res.content = pipe.read
+      #pipe.close_read
     end
 
   rescue BadRequest => e
-    res.code = "400 Bad request"
-    res.mime = "text/html"
-    res.content = "<html><head><title>Bad request</title></head><body>Bad request</body></html>"
+    report_http_error 400, res
     
   rescue Errno::ENOENT => e
-    res.code = "404 Not found"
-    res.mime = "text/html"
-    res.content = "<html><head><title>Path not found</title></head><body>Not found: #{req.path}</body></html>"
+    report_http_error 404, res, req.path
 
   rescue Exception => e
-    res.code = "500 Internal server error"
-    res.mime = "text/html"
-    res.content = "<html><head><title>Internal server error</title></head><body>Internal server error</body></html>"
+    report_http_error 500, res
 
     e.display
-    puts e.backtrace
+    puts "\n", e.backtrace
     puts e.class
   end
 
   res.write remote
+  log.write "Responded with #{res.code} to #{client}"
+  
   remote.close
-
-  #conns += [remote]
-  #ctl_out.write '1'
 end
 
