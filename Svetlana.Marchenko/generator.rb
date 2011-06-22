@@ -8,6 +8,13 @@ def generateHeader(status, message, contentType)
   header
 end
 
+def generateLogMessage(session, status, message, contentType)
+	logStr  = "#{session.peeraddr[2]} (#{session.peeraddr[3]}) "
+	logStr += Time.now.localtime.strftime("%Y/%m/%d %H:%M:%S")
+	logStr += " HTTP/1.1 #{status}/#{message} Content-type: #{contentType}"
+	logStr
+end
+
 def generateErrorPage(status, message)
   htmlText = "  
   <!DOCTYPE html>

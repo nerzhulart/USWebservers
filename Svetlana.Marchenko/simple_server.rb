@@ -17,7 +17,7 @@ require 'generator'
 
 
 def writeIntoLog(message)
-  logStr =  "\n\n\n\n\n\n#{message}"
+  logStr =  "\n#{message}"
   $log.puts logStr if $log != nil
   $stderr.puts logStr if $log != nil
 end
@@ -74,8 +74,7 @@ class HttpServer
       if File.exist?(@fullPath) and File.file?(@fullPath)
 	if @fullPath.index(@basePath) == 0 
 	  header = generateHeader(200, @status[200], contentType)
-	  print header
-	  writeIntoLog(header)
+	  writeIntoLog(generateLogMessage(@session, 200, @status[200], contentType))
 	  @session.print header
 	  ext = File.extname(@fullPath)
 	  if ext == ".rb"
@@ -86,10 +85,12 @@ class HttpServer
 	else #endif fullPath starts with basePath
 	  @session.print generateHeader(400, @status[400], @contentTypes[".html"])
 	  @session.print generateErrorPage(400, @status[400])
+		writeIntoLog(@session, 400, @status[400], contentType)
 	end
       else #endif File.exist
 	@session.print generateHeader(404, @status[404], @contentTypes[".html"])
 	@session.print generateErrorPage(404, @status[404])
+	writeIntoLog(@sesstion, 404, @status[404], contentType)
       end
     ensure
       @session.close
@@ -118,18 +119,17 @@ else
 	basePath = File.expand_path("./")
 end
 
-server = TCPServer.new('127.0.0.1', 9090)
+$server = TCPServer.new('127.0.0.1', 9090)
 logfile = basePath + "/log.txt"
 $log = File.open(logfile, "a")
 $log.sync = true
 
 loop do
-  session = server.accept
+  session = $server.accept
   request = session.gets
-  logStr =  "#{session.peeraddr[2]} (#{session.peeraddr[3]})\n"
+  logStr =  "#{session.peeraddr[2]} (#{session.peeraddr[3]}) "
   logStr += Time.now.localtime.strftime("%Y/%m/%d %H:%M:%S")
-  logStr += "\n#{request}"
-  logStr += "\nbase path #{basePath}\n"
+  logStr += " #{request}"
   writeIntoLog(logStr)
 
   Thread.start(session, request) do |session, request|
