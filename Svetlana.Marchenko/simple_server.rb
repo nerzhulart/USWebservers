@@ -85,12 +85,13 @@ class HttpServer
 	else #endif fullPath starts with basePath
 	  @session.print generateHeader(400, @status[400], @contentTypes[".html"])
 	  @session.print generateErrorPage(400, @status[400])
-		writeIntoLog(@session, 400, @status[400], contentType)
+	  writeIntoLog(generateLogMessage(@session, 400, @status[400], contentType))
 	end
       else #endif File.exist
 	@session.print generateHeader(404, @status[404], @contentTypes[".html"])
 	@session.print generateErrorPage(404, @status[404])
-	writeIntoLog(@sesstion, 404, @status[404], contentType)
+	print "file not found \n"
+	writeIntoLog(generateLogMessage(@session, 404, @status[404], contentType))
       end
     ensure
       @session.close
