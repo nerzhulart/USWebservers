@@ -126,8 +126,7 @@ class WebServer:
                     try:
                         f = open(resource, 'rb')
                         date_modified = datetime.fromtimestamp(os.path.getmtime(resource))
-                        date_modified_utc = datetime.utcfromtimestamp(os.path.getmtime(resource))
-                        if if_modified_since and self.parse_http_date(if_modified_since) > self.parse_http_date(self.http_date(date_modified_utc)):
+                        if if_modified_since and self.parse_http_date(if_modified_since) >= self.parse_http_date(self.http_date(date_modified)):
                             response.write(self.make_header({"code": 304}))
                         else:
                             print "\t200 OK\n"
@@ -135,7 +134,7 @@ class WebServer:
                                                             {"Last-Modified": self.http_date(date_modified)}))
                             file_content = f.read()
                             response.write(file_content)
-                        f.close()
+                            f.close()
                     except IOError:
                         print "\t404 Not found\n"
                         response.write(self.make_header({"code": 404}))
