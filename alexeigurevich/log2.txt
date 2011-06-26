@@ -1,0 +1,10 @@
+request from: 127.0.0.1
+time: 2011-06-27 03:08:39
+request: GET /index.html HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 03:08:41
+request: GET /staff/zenit.png HTTP/1.1
+response: HTTP/1.1 200/OK 
+
