@@ -1,4 +1,3 @@
-import scala.io._
 import scala.util.control.Breaks._
 import scala.collection.immutable.{Map,StringOps}
 import java.lang.{Process,ProcessBuilder}
@@ -8,8 +7,7 @@ import java.util.{Date,Locale,Calendar}
 
 val socket = new java.net.ServerSocket(1234)
 val log = new FileWriter("q.log", true)
-val getReqLong = "GET http://.*/(.*) HTTP/1\\..".r
-val getReqShort = "GET /(.*) HTTP/1\\..".r
+val getReq = "GET (?:http://.*)?/(.*) HTTP/1\\..".r
 val fileExt = ".*\\.([^/]*)".r
 val responses = Map (
     200 -> "HTTP/1.1 200/OK"
@@ -43,7 +41,7 @@ while (true) {
             log.flush
         }
         try {
-            val input = new BufferedSource(client.getInputStream).getLines
+            val input = new scala.io.BufferedSource(client.getInputStream).getLines
             if (input.hasNext) {
                 val request = input.next
                 var date : Date = null
@@ -61,47 +59,45 @@ while (true) {
                         }
                     }
                 }
-                def returnPage(url : String) {
-                    val file = new File(url)
-                    if (!file.exists) {
-                        answer(404, url)
-                        return
-                    }
-                    if (date != null && date.after(new Date(file.lastModified))) {
-                        answer(304, url)
-                        return
-                    }
-                    var isScript = false
-                    var contentType = "\n"
-                    for { ext <- fileExt.unapplySeq(url)
-                          mime <- mimes.get(ext.head) } {
-                        contentType = "Content-type: " + mime + "\n\n"
-                        if (ext.head == "scala") {
-                            isScript = true
-                        }
-                    }
-                    if (isScript) {
-                        val bs = new BufferedSource(new ProcessBuilder("scala", url).start.getInputStream)
-                        answer(200, url)
-                        output.write(contentType.getBytes)
-                        for (line <- bs.getLines) {
-                            output.write((line + "\n").getBytes)
-                        }
-                    } else {
-                        val is = new FileInputStream(file)
-                        val b = new Array[Byte](4096)
-                        answer(200, url)
-                        output.write(contentType.getBytes)
-                        var k = is.read(b)
-                        while (k >= 0) {
-                            output.write(b, 0, k)
-                            k = is.read(b)
-                        }
-                    }
-                }
                 request match {
-                    case getReqLong(url) => returnPage(url)
-                    case getReqShort(url) => returnPage(url)
+                    case getReq(url) => {
+                        val file = new File(url)
+                        if (!file.exists) {
+                            answer(404, url)
+                            return
+                        }
+                        if (date != null && date.after(new Date(file.lastModified))) {
+                            answer(304, url)
+                            return
+                        }
+                        var isScript = false
+                        var contentType = "\n"
+                        for { ext <- fileExt.unapplySeq(url)
+                              mime <- mimes.get(ext.head) } {
+                            contentType = "Content-type: " + mime + "\n\n"
+                            if (ext.head == "scala") {
+                                isScript = true
+                            }
+                        }
+                        if (isScript) {
+                            val bs = new scala.io.BufferedSource(new ProcessBuilder("scala", url).start.getInputStream)
+                            answer(200, url)
+                            output.write(contentType.getBytes)
+                            for (line <- bs.getLines) {
+                                output.write((line + "\n").getBytes)
+                            }
+                        } else {
+                            val is = new FileInputStream(file)
+                            val b = new Array[Byte](4096)
+                            answer(200, url)
+                            output.write(contentType.getBytes)
+                            var k = is.read(b)
+                            while (k >= 0) {
+                                output.write(b, 0, k)
+                                k = is.read(b)
+                            }
+                        }
+                    }
                     case _ => answer(400)
                 }
             } else {
