@@ -111,12 +111,13 @@ class Server:
 	     	expansion = file_requested.split('.')[-1]
 	     	if not Server.content_type.has_key(expansion):
 			raise Exception("ERROR: Wrong Content Type")
+	     	if expansion == "py":
+			print ""
 	     except Exception as e: 
 		h = 'HTTP/1.1 400 Bad Request\n'
+
 		current_date = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
-     		h += 'Date: ' + current_date +'\n'
-     		h += 'Server: Python-HTTP-Server\n'
-     		h += 'Connection: close\n\n'  
+     		h += 'Date: ' + current_date +'\n' + 'Server: Python-HTTP-Server\n' + 'Connection: close\n\n'  
    		log_file.write(h)			 
 	
 	     if (file_requested == '/'): 
