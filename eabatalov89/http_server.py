@@ -28,7 +28,7 @@ ext_cont_type = { \
 "pdf" : "application/pdf", \
 "mpeg" : "video/mpeg" }
 
-def inetrnal_error():
+def internal_error():
    print >>log_file, datetime.now(), " 500 Internal Server Error - ", sys.exc_info()[0]
    return """HTTP/1.1 500 Internal Server Error
 Server: PyPyPyPyPyPyPy
@@ -113,7 +113,7 @@ def process(req_str):
    try:
       print >>log_file, "INCOMING HTTP REQUEST:"
       print >>log_file, req_str
-
+      
       resp = bad_request(req_str)
       if resp: return resp
 
