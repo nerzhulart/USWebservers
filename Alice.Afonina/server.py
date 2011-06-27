@@ -92,7 +92,7 @@ class Processor(threading.Thread):
 							result = commands.getoutput("python " + dirname)
 							self.send_message(client, filename, "200", "txt", result)
 			except:
-				self.send_message(client, filename, "503", "html")				
+				self.send_message(client, filename, "500", "html")				
 
 	def receive_message(self, client):
 		data = ""
