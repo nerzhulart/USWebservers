@@ -64,37 +64,36 @@ while (true) {
                         val file = new File(url)
                         if (!file.exists) {
                             answer(404, url)
-                            return
-                        }
+                        } else
                         if (date != null && date.after(new Date(file.lastModified))) {
                             answer(304, url)
-                            return
-                        }
-                        var isScript = false
-                        var contentType = "\n"
-                        for { ext <- fileExt.unapplySeq(url)
-                              mime <- mimes.get(ext.head) } {
-                            contentType = "Content-type: " + mime + "\n\n"
-                            if (ext.head == "scala") {
-                                isScript = true
-                            }
-                        }
-                        if (isScript) {
-                            val bs = new scala.io.BufferedSource(new ProcessBuilder("scala", url).start.getInputStream)
-                            answer(200, url)
-                            output.write(contentType.getBytes)
-                            for (line <- bs.getLines) {
-                                output.write((line + "\n").getBytes)
-                            }
                         } else {
-                            val is = new FileInputStream(file)
-                            val b = new Array[Byte](4096)
-                            answer(200, url)
-                            output.write(contentType.getBytes)
-                            var k = is.read(b)
-                            while (k >= 0) {
-                                output.write(b, 0, k)
-                                k = is.read(b)
+                            var isScript = false
+                            var contentType = "\n"
+                            for { ext <- fileExt.unapplySeq(url)
+                                  mime <- mimes.get(ext.head) } {
+                                contentType = "Content-type: " + mime + "\n\n"
+                                if (ext.head == "scala") {
+                                    isScript = true
+                                }
+                            }
+                            if (isScript) {
+                                val bs = new scala.io.BufferedSource(new ProcessBuilder("scala", url).start.getInputStream)
+                                answer(200, url)
+                                output.write(contentType.getBytes)
+                                for (line <- bs.getLines) {
+                                    output.write((line + "\n").getBytes)
+                                }
+                            } else {
+                                val is = new FileInputStream(file)
+                                val b = new Array[Byte](4096)
+                                answer(200, url)
+                                output.write(contentType.getBytes)
+                                var k = is.read(b)
+                                while (k >= 0) {
+                                    output.write(b, 0, k)
+                                    k = is.read(b)
+                                }
                             }
                         }
                     }
