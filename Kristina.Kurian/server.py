@@ -56,7 +56,10 @@ class Server:
              self.socket.bind((self.host, self.port))
 
          except Exception as e:
-             self.reset()
+	     current_date = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
+     	     mes = 'HTTP/1.1 500 Internal Server Error\n' + 'Date: ' + current_date +'\n' + 'Server: HTTP-Server\n' + 'Connection: close\n\n' 
+	     print mes
+	     self.reset()
              sys.exit(1)
 
      print ("Server successfully started with port:", self.port)
