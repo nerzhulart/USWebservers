@@ -1,0 +1,115 @@
+request from: 127.0.0.1
+time: 2011-06-27 11:36:39
+request: GET /index.html HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 11:36:40
+request: GET /staff/zenit.png HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 11:36:43
+request: GET /staff/test.py HTTP/1.1
+response: 500 Internal Server Error
+
+request from: 127.0.0.1
+time: 2011-06-27 11:37:01
+request: GET /staff/spartak.jpg HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:37:03
+request: GET /staff/text.txt HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 11:37:06
+request: GET /staff/spartak.jpg HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:37:09
+request: GET /staff/text.txt HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 11:37:11
+request: GET /staff/zenit.png HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 11:37:13
+request: GET /staff/test.py HTTP/1.1
+response: 500 Internal Server Error
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:32
+request: GET /index.html HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:32
+request: GET /favicon.ico HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:33
+request: GET /staff/test.py HTTP/1.1
+response: 500 Internal Server Error
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:33
+request: GET /favicon.ico HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:34
+request: GET /index.html HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:34
+request: GET /favicon.ico HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:35
+request: GET /staff/spartak.jpg HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:35
+request: GET /favicon.ico HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:38
+request: GET /favicon.ico HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:38
+request: GET /staff/text.txt HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:38
+request: GET /favicon.ico HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:41:39
+request: GET /favicon.ico HTTP/1.1
+response: 404 Not Found
+
+request from: 127.0.0.1
+time: 2011-06-27 11:53:36
+request: GET /index.html HTTP/1.1
+response: HTTP/1.1 200/OK 
+
+request from: 127.0.0.1
+time: 2011-06-27 11:53:37
+request: GET /staff/test.py HTTP/1.1
+response: HTTP/1.1 200/OK 
+

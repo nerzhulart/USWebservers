@@ -135,6 +135,8 @@ def encode_http(query, body='', **headers):
     if headers:
         data.append(headers)
 
+	print data
+	
     data.append('')
 
     if body:
@@ -163,7 +165,7 @@ class Request(object):
     def __str__(self):
         return "%s %s %r" % (self.method, self.url, self.headers)
 
-    def reply(self, code=200, content_type='text/plain', body='', **headers):
+    def reply(self, code=200, content_type='text/plain', body='', last_modified=datetime.now().ctime(), **headers):
         self.code = code
         if code == 200:
             headers.setdefault('content_type', content_type)
@@ -179,6 +181,7 @@ class Request(object):
         headers.setdefault('content_length', len(body))
         headers.setdefault('connection', 'close')
         headers.setdefault('date', datetime.now().ctime())
+        headers.setdefault('IF-MODIFIED-SINCE', last_modified)
 
         logger = MyLogger()
         logger.writeRes(str(code))
@@ -214,7 +217,8 @@ class HTTPServer(object):
             raise
 
     def on_request(self, request):
-        print request
+        #print request
+        
         try:
             for pattern, handler in self.handlers:
                 if pattern(request):
@@ -224,7 +228,7 @@ class HTTPServer(object):
             request.reply(error.args[0])
             return False
         except Exception as err:
-            request.reply(500, traceback.format_exc(err))
+            request.reply(500, traceback.format_exc())
             return False
 
         request.reply(404)
