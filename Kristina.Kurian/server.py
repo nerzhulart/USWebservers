@@ -104,15 +104,13 @@ class Server:
          
          if (request_method == 'GET'):
              file_requested = string.split(' ')
-             file_requested = file_requested[1] 
-    		
-             file_requested = file_requested.split('?')[0]  
+	     file_requested = file_requested[1] 
+    	     file_requested = file_requested.split('?')[0]  
      	     try:
 	     	expansion = file_requested.split('.')[-1]
 	     	if not Server.content_type.has_key(expansion):
 			raise Exception("ERROR: Wrong Content Type")
-	     	if expansion == "py":
-			print ""
+	     	
 	     except Exception as e: 
 		h = 'HTTP/1.1 400 Bad Request\n'
 
@@ -120,43 +118,56 @@ class Server:
      		h += 'Date: ' + current_date +'\n' + 'Server: Python-HTTP-Server\n' + 'Connection: close\n\n'  
    		log_file.write(h)			 
 	
-	     if (file_requested == '/'): 
-                 file_requested = '/index.html' 
+	     
+	     if expansion == "py":
+		tmpfile = self.dir + file_requested
+		
+		from subprocess import Popen, PIPE
+		if (request_method == 'GET'):		
+			command = "python " + tmpfile
+			print command
+			response_content = Popen(command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read()	
+               	response_headers = self.check_state(200)
+	 	log_file.write(response_headers)			 
+	     else:	
+	     	if (file_requested == '/'): 
+                	file_requested = '/index.html' 
              
-             file_requested = self.dir + file_requested
-             print ("Opening page [",file_requested,"]")
-	     try:
-                 file_handler = open(file_requested,'rb')
-                 if (request_method == 'GET'): 
-                     response_content = file_handler.read()                        
-                 file_handler.close()
+             	file_requested = self.dir + file_requested
+	     	print ("Opening page [",file_requested,"]")
+	     	try:
+                	file_handler = open(file_requested,'rb')
+                 	if (request_method == 'GET'): 
+                     		response_content = file_handler.read()                        
+                 	file_handler.close()
                  
-                 response_headers = self.check_state(200)
-		 log_file.write(response_headers)			 
-                 
-             except Exception as e: 
-		 response_headers = self.check_state(304)
-                 if (request_method == 'GET'):
-                    response_content = b"<html><body><p>Error 304: Not Modified</p><p>HTTP server</p></body></html>"
-	
-		 response_headers = self.check_state(400)
-                 if (request_method == 'GET'):
-                    response_content = b"<html><body><p>Error 400: Bad Request</p><p>HTTP server</p></body></html>"
-	
-                 
-		 response_headers = self.check_state(404)
-		 if (request_method == 'GET'):
-                    response_content = b"<html><body><p>Error 404: File not found</p><p>HTTP server</p></body></html>"
+                 	response_headers = self.check_state(200)
+		 	log_file.write(response_headers)			 
+             	except IOError as e:
+			response_headers = self.check_state(404)
+			if (request_method == 'GET'):
+                		response_content = b"<html><body><p>Error 404: File not found</p><p>HTTP server</p></body></html>"
 		 
-		 response_headers = self.check_state(500)
-                 if (request_method == 'GET'):
-                    response_content = b"<html><body><p>Error 500: Internal Server Error</p><p>HTTP server</p></body></html>"
+   		 	log_file.write(response_headers)	
+    
+             	except Exception as e: 
+			response_headers = self.check_state(304)
+                	if (request_method == 'GET'):
+                		response_content = b"<html><body><p>Error 304: Not Modified</p><p>HTTP server</p></body></html>"
+	
+			response_headers = self.check_state(400)
+                	if (request_method == 'GET'):
+                		response_content = b"<html><body><p>Error 400: Bad Request</p><p>HTTP server</p></body></html>"
 		 
-   		 log_file.write(response_headers)	
+			response_headers = self.check_state(500)
+                	if (request_method == 'GET'):
+                		response_content = b"<html><body><p>Error 500: Internal Server Error</p><p>HTTP server</p></body></html>"
+		 
+   			log_file.write(response_headers)	
 		
              server_response =  response_headers.encode() 
              if (request_method == 'GET'):
-                 server_response +=  response_content  
+               	server_response +=  response_content  
 
              conn.send(server_response)
              print ("Closing connection.")
