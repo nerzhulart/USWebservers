@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+
 __author__ = 'kate'
 
 
@@ -232,7 +234,13 @@ class HTTPServer(object):
 
 if __name__ == '__main__':
 
-    port, root = 8090, '.'
+    if len(sys.argv) > 1:
+        port = int(sys.argv[1])
+    else:
+        port = 8090
+	print port
+        
+    root = '.'
     server = HTTPServer(port=port)
     server.register(*serve_static('/', root))
     server.serve()
