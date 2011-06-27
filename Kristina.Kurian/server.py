@@ -101,7 +101,6 @@ class Server:
          string = bytes.decode(data) 
 
          request_method = string.split(' ')[0]
-         
          if (request_method == 'GET'):
              file_requested = string.split(' ')
 	     file_requested = file_requested[1] 
@@ -128,7 +127,7 @@ class Server:
 			print command
 			response_content = Popen(command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read()	
                	response_headers = self.check_state(200)
-	 	log_file.write(response_headers)			 
+	 	log_file.write("Page: " + file_requested + "\n" + response_headers)			 
 	     else:	
 	     	if (file_requested == '/'): 
                 	file_requested = '/index.html' 
@@ -142,13 +141,13 @@ class Server:
                  	file_handler.close()
                  
                  	response_headers = self.check_state(200)
-		 	log_file.write(response_headers)			 
+		 	log_file.write("Page: " + file_requested + "\n" + response_headers)			 
              	except IOError as e:
 			response_headers = self.check_state(404)
 			if (request_method == 'GET'):
                 		response_content = b"<html><body><p>Error 404: File not found</p><p>HTTP server</p></body></html>"
 		 
-   		 	log_file.write(response_headers)	
+   		 	log_file.write("Page: " + file_requested + "\n" + response_headers)	
     
              	except Exception as e: 
 			response_headers = self.check_state(304)
@@ -163,7 +162,7 @@ class Server:
                 	if (request_method == 'GET'):
                 		response_content = b"<html><body><p>Error 500: Internal Server Error</p><p>HTTP server</p></body></html>"
 		 
-   			log_file.write(response_headers)	
+   			log_file.write("Page: " + file_requested + "\n" + response_headers)	
 		
              server_response =  response_headers.encode() 
              if (request_method == 'GET'):
