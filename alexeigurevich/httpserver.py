@@ -13,6 +13,7 @@ import socket
 import datetime
 import os
 import sys
+from cStringIO import StringIO
 
 ### server params
 host = 'localhost'
@@ -49,7 +50,7 @@ def processFile(filename, mod_datetime):
 		filename = "/index.html"
 	path = basepath + filename
 	if os.path.exists(path) and os.path.isfile(path):
-		inpfile = open(path, 'r')
+		
 
 		# check for 304 error
 		if mod_datetime	!= None:
@@ -66,27 +67,21 @@ def processFile(filename, mod_datetime):
 		response = header + "Content-type: %s\r\n\r\n" % mime
 		
 		if ext == ".py":   # execute python script
-			try:
-				tmp = open("tmp", "w")
-				sys.stdout = tmp
-				sys.stderr = tmp
-				execfile(path)
-				tmp.close()
-				tmp = open("tmp", "r")
-				#response = header + "Content-type: text/html\r\n\r\n"
+			try:	
+				tmpstr = StringIO()
+				sys.stdout = tmpstr
+				sys.stderr = tmpstr
+				execfile(path)											
 				response += "<html><head><title>Python file execution</title></head> \
-					<body><h3>Execution results:</h3>" + tmp.read() + "</body></html>"				
-			except:
-				return processError(500)
+					<body><h3>Execution results:</h3>" + tmpstr.getvalue() + "</body></html>"				
 			finally:			
 				sys.stdout = sys.__stdout__
 				sys.stderr = sys.__stderr__
-				tmp.close()
-				os.remove("tmp")
 		else:
+			inpfile = open(path, 'r')
 			response += inpfile.read()
+			inpfile.close()
 
-		inpfile.close()		
 		return response, header
 	else:
 		return processError(404)  # Not found
