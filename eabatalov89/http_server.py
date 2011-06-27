@@ -1,4 +1,20 @@
 # /usr/bin/python2.6
+
+# date: 06/27/2011
+# mail: eabatalov89@gmail.com
+# program: simple http server 
+# language: python
+# supported http codes: 500, 404, 400, 304, 200
+# supported mymetypes: below in ext_cont_type dictionary
+# scripts: executes python scripts (executes and passes stdout to client) with no GET\POST parameters
+# this means no interaction between server and python code.
+# command line args: port to listen on all intefaces, log file
+# ------------------------Features--------------------------------
+# single-threaded 
+# starts from init() function
+# processes request by checking each potential http error
+# if no such, returns requested content or 304 Not Modified
+
 import sys
 import socket
 import re
@@ -7,6 +23,7 @@ import time
 import os
 import email.utils as eut
 import subprocess
+import StringIO
 
 lsn_port = 8080
 lsn_host = ''
@@ -88,12 +105,14 @@ Server: PyPyPyPyPyPyPy
       return BAD_REQUEST_STR
    header += "Content-Type: " + ext_cont_type[req_ext] + "\n"
    if req_ext == "py":
-      std_out = os.popen("/usr/bin/python2.6 " + req_file)
-      if not std_out:
-         return internal_error()
-      else:
-         body = std_out.read()
-         std_out.close()
+      #std_out = os.popen("/usr/bin/python2.6 " + req_file)
+      
+      std_out = StringIO.StringIO()
+      sys.stdout = std_out
+      execfile(req_file)
+      sys.stdout = sys.__stdout__
+      body = std_out.getvalue()
+      std_out.close()
    else:
       f = open(req_file, "r")
       body = f.read()
