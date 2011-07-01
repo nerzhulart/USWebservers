@@ -1,2 +1,2 @@
 #!/usr/bin/python -OO
-print "test python program\n"
+print "test python program works!!!"
