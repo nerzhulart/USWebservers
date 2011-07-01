@@ -1,4 +1,4 @@
-# /usr/bin/python2.6
+#!/usr/bin/python2.6
 
 # date: 06/27/2011
 # mail: eabatalov89@gmail.com
@@ -31,6 +31,11 @@ lsn_socket = None
 log_file_name = "stdout"
 log_file = None
 
+req_file_ext = None
+req_file_path = None
+req_modif_since = None
+req_file_name = None
+
 ext_cont_type = { \
 "py" : "text/html; charset=utf-8", \
 "txt" : "text/plain; charset=utf-8", \
@@ -45,91 +50,102 @@ ext_cont_type = { \
 "pdf" : "application/pdf", \
 "mpeg" : "video/mpeg" }
 
-def internal_error():
-   print >>log_file, datetime.now(), " 500 Internal Server Error - ", sys.exc_info()[0]
-   return """HTTP/1.1 500 Internal Server Error
-Server: PyPyPyPyPyPyPy
-connection: close"""
+err_code_description = {
+500 : "Internal Server Error",
+404: "Not Found",
+400: "Bad Request",
+304: "Not Modified",
+200: "Ok"
+}
 
-BAD_REQUEST_STR = """HTTP/1.1 400 Bad Request
-Server: PyPyPyPyPyPyPy
-connection: close"""
+
+def parse_request(req_str):
+   global req_file_path
+   global req_file_ext
+   global req_modif_since
+   global req_file_name
+   match_file = re.search("GET /(\w+)\.(\w+)", req_str)
+   if match_file:
+      req_file_path = ""
+      req_file_name = match_file.group(1)
+      req_file_ext = match_file.group(2) 
+   else:
+      req_file_ext = "html"
+      req_file_path = ""
+      req_file_name = "index"
+   match_ifmod = re.search("If-Modified-Since: (.*)", req_str)
+   if not match_ifmod:
+      req_modif_since = None
+   else:
+      req_modif_since = match_ifmod.group(1).strip()
+   
+   print req_file_path
+   print req_file_name
+   print req_file_ext
+
+def req_file():
+   return "./" + req_file_path + req_file_name + "." + req_file_ext
+ 
+
+def generate_response(code, log_msg):
+   print >>log_file, datetime.now(), " ", str(code), " ", log_msg
+   log_file.flush()
+   return "HTTP/1.1 " + str(code) + " " + err_code_description[code]  + "\nServer: PyPyPyPyPyPyPy\n|"
+
+def internal_error(exception):
+   return generate_response(500, str(exception))
+
 
 def bad_request(req_str):
-   #match_enc = re.search("Accept-Charset: .*utf-8.*", req_str) 
-   #match_file = re.search("(GET|POST) /(\w+)\.(\w+)", req_str)
-   #if (not match_enc) or (not match_file):
-   #   print >>log_file, datetime.now(), " 400 Bad Request - Client Browser Doesnt support utf-8 encoding \n", req_str
-   #   return BAD_REQUEST_STR
-   #else: 
-   return None
+   if (not req_file_ext) or (not req_file_name):
+      return generate_response(400, "No file specified  \n" + req_str)
+   else: 
+      return None
+
 
 def not_found(req_str):
-   match_file = re.search("(GET|POST) /(\w+)\.(\w+)", req_str)
-   req_file_path = match_file.group(2)
-   req_ext = match_file.group(3) 
-   if os.path.exists("./" + req_file_path + "." + req_ext):
+   if os.path.exists(req_file()):
       return None
    else: 
-      print >>log_file, datetime.now(), " 404 Not Found - file: ", "./" + req_file_path + "." + req_ext
-      return """HTTP/1.1 404 Not Found
-Server: PyPyPyPyPyPyPy
-connection: close"""
+      return generate_response(404, req_file())
+
 
 def not_modified(req_str):
-   match_ifmod = re.search("If-Modified-Since: (.*)", req_str)
-   if not match_ifmod: return None
-   else:
-      match_file = re.search("(GET|POST) /(\w+)\.(\w+)", req_str)
-      req_file_path = match_file.group(2)
-      req_ext = match_file.group(3) 
-      last_modif = eut.formatdate(os.path.getmtime( "./" + req_file_path + "." + req_ext), usegmt = True).strip()
-      req_last_modif = match_ifmod.group(1).strip()
-      if last_modif == req_last_modif:
-         print >>log_file, datetime.now(), " 304 Not Modified - file: ", "./" + req_file_path + "." + req_ext
-         return """HTTP/1.1 304 Not Modified
-Server: PyPyPyPyPyPyPy
-connection: close"""
+   if req_modif_since:
+      last_modif = eut.formatdate(os.path.getmtime( req_file() ), usegmt = True).strip()
+      if last_modif == req_modif_since:
+         return generate_response(304, req_file())
       else: return None
+   else: return None
 
-def handle_file(req_str):
-   header = """HTTP/1.1 200 OK
-Server: PyPyPyPyPyPyPy
-"""
-   match_file = re.search("(GET|POST) /(\w+)\.(\w+)", req_str)
-   req_file_path = match_file.group(2)
-   req_ext = match_file.group(3) 
-   req_file = req_file_path + "." + req_ext
 
-   if not ext_cont_type.has_key(req_ext):
-      return BAD_REQUEST_STR
-   header += "Content-Type: " + ext_cont_type[req_ext] + "\n"
-   if req_ext == "py":
-      #std_out = os.popen("/usr/bin/python2.6 " + req_file)
-      
+def handle_file():
+   if not ext_cont_type.has_key(req_file_ext):
+      return generate_response(400, "MIME type not supported: " + req_file())
+   header = generate_response(200, req_file())
+   header += "Content-Type: " + ext_cont_type[req_file_ext] + "\n"
+   if req_file_ext == "py":
       std_out = StringIO.StringIO()
       sys.stdout = std_out
-      execfile(req_file)
+      execfile(req_file())
       sys.stdout = sys.__stdout__
       body = std_out.getvalue()
       std_out.close()
    else:
-      f = open(req_file, "r")
+      f = open(req_file(), "r")
       body = f.read()
       f.close()
 
-   last_modif = os.path.getmtime(req_file)
-   last_modif_fmt = eut.formatdate(last_modif, usegmt = True)
-   
+   last_modif = eut.formatdate(os.path.getmtime(req_file()), usegmt = True)
    header += "Content-Length: " + str(len(body)) + "\n"
-   header +="Last-Modified: " + last_modif_fmt + "\n"
+   header +="Last-Modified: " + last_modif + "\n"
    header += "Connection: close"
-
-   print >>log_file, datetime.now(), "\n", header
    return header + "\n\n" + body
 
 def process(req_str):
-   try:
+#   try:
+      parse_request(req_str)
+
       print >>log_file, "INCOMING HTTP REQUEST:"
       print >>log_file, req_str
       
@@ -142,12 +158,12 @@ def process(req_str):
       resp = not_modified(req_str)
       if resp: return resp
 
-      resp = handle_file(req_str)
+      resp = handle_file()
       if resp: return resp
 
       return BAD_REQUEST_STR
-   except:
-      return internal_error()
+#   except:
+#      return internal_error(str(sys.exc_info()[0]))
 
 def finalize():
    if lsn_socket:
@@ -167,7 +183,7 @@ def init():
        lsn_port = int(sys.argv[1])
    if (len(sys.argv) > 2): 
       log_file_name = sys.argv[2]
-      log_file = open(log_file_name, "w")
+      log_file = open(log_file_name, "a")
    else:
       log_file = sys.stdout
 
