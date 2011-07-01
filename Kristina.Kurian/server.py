@@ -118,9 +118,17 @@ class Server:
 
          data = conn.recv(1024) 
          string = bytes.decode(data) 
-
-         request_method = string.split(' ')[0]
-         if (request_method == 'GET'):
+	 
+	 request_method = string.split(' ')[0]
+         
+	 request = string.split("\r\n")
+	 modified = [x for x in request if x.find("If-Modified-Since:") != -1]
+	 modified_date = None
+	 if modified != []:
+	 	date = modified[0].partition(":")[2]
+		modified_date = datetime.strptime(date, " %a, %d %b %Y %H:%M:%S GMT")
+			
+	 if (request_method == 'GET'):
              file_requested = string.split(' ')[1]
 	     
 	     try:
@@ -149,6 +157,14 @@ class Server:
 	     	try:
                 	file_handler = open(file_requested,'rb')
                  	
+			if modified_date:	
+				dirname = os.getcwd() + file_requested
+				file_modified_ts = os.path.getmtime(dirname)
+				file_modified = datetime.fromtimestamp(file_modified_ts)
+				if file_modified < modified_date:
+					self.state304NotModified();
+					break
+						
 			response_content = file_handler.read()                        
                  	file_handler.close()
                  
