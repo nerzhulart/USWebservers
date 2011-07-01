@@ -15,6 +15,7 @@ import re
 import commands
 import threading
 import Queue
+import StringIO
 
 text = {
 "200" : "OK",
@@ -71,6 +72,9 @@ class Processor(threading.Thread):
 			except:
 				self.send_message(client, "", "400", "html")
 			try:		
+				if filename is "/":
+					filename = "/index.html"
+					print filename
 				dirname = os.getcwd() + filename
 				if not os.path.exists(dirname):
 					self.send_message(client, filename, "404", "html")
@@ -89,10 +93,18 @@ class Processor(threading.Thread):
 							ext = filename_parts[len(filename_parts)-1]		
 							self.send_message(client, filename, "200",  ext.lower(), result)
 						else:
-							result = commands.getoutput("python " + dirname)
+							try:
+								tmpstr = StringIO.StringIO()
+								sys.stdout = tmpstr
+								sys.stderr = tmpstr
+								execfile(dirname)
+								result = tmpstr.getvalue()
+							finally:
+								sys.stdout = sys.__stdout__
+								sys.stderr = sys.__stderr__
 							self.send_message(client, filename, "200", "txt", result)
 			except:
-				self.send_message(client, filename, "500", "html")				
+				self.send_message(client, filename, "500", "html", str(sys.exc_info()[1]))				
 
 	def receive_message(self, client):
 		data = ""
@@ -115,17 +127,23 @@ class Processor(threading.Thread):
 		client.close()
 		
 clients = Queue.Queue (0)	
-
+def end(ss):
+	print "Shutting down..."
+	log_file.close()
+	ss.close()
+	
 def main():
 	host = ''
 	args = sys.argv		
-	if len(args) < 1 or len(args) > 2:		
+	if len(args) < 2 or len(args) > 3:		
 		print "Wrong number of arguments. No port selected. By default, server \n would be started on 6006 port."
 		port = 6006
 	else:
-		port = args[1]			 
+		port = args[1]			 		
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.bind((host, int(port)))
+	import atexit
+	atexit.register(end, s)
 	s.listen(1)
 	try:
 		for i in range(3):
@@ -134,9 +152,8 @@ def main():
 			clients.put(s.accept())
 	except:
 		print "Server Error"
-		exit()
-	finally:
-		log_file.close()
-		s.close()		
+		
+	sys.exit(1)	
+
 if __name__ == '__main__' :
   main()
