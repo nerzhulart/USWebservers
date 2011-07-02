@@ -12,8 +12,8 @@
 # ./server.py [-h|--host=] host_name [-f|--file=] log_file
 
 # Options:
-# [-h|--host] - port for connection, by default port is 8080
-# [-f|--file] - file use for writing log, by default file is "log.txt"
+# [-h|--host=] - port for connection, by default port is 8080
+# [-f|--file=] - file use for writing log, by default file is "log.txt"
 
 
 import socket  
