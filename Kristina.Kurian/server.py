@@ -42,9 +42,10 @@ class Server:
  }
  
  def processError(self, errorNumber):
-	errorTitle = Server.errorHeaders[errorNumber]
-	errorMessage = "<html><body><p>Error" + str(errorNumber) + ":" + errorTitle + "</p><p>HTTP server</p></body></html>"
-	return errorMessage
+     errorTitle = Server.errorHeaders[errorNumber]
+     errorMessage = "<html><body><p>Error" + str(errorNumber) + ":" + errorTitle + "</p><p>HTTP server</p></body></html>"
+
+     return errorMessage
 
  def state200OK(self):
      mes = 'HTTP/1.1 200 OK\n'
@@ -84,7 +85,7 @@ class Server:
  
  def __init__(self, port, filename):
      self.host = ''   
-     self.port = port
+     self.port = int(port)
      self.dir = 'page'
      self.filename = filename		
 	
@@ -95,7 +96,7 @@ class Server:
          self.socket.bind((self.host, self.port))
 
      except Exception as e:
-	 print("Connect to specified port ", self.port, "is failed")        
+	 print("Connect to specified port ", self.port, " is failed")        
  	 self.port = 8080
          try:
 	     print("Trying to start server on ", self.host, " ",self.port)
