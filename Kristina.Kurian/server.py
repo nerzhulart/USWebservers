@@ -91,6 +91,7 @@ class Server:
  def start_server(self):
      self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
      try: 
+	 print("Trying to start server on ", self.host, " ",self.port)
          self.socket.bind((self.host, self.port))
 
      except Exception as e:
