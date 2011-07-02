@@ -17,7 +17,8 @@
 
 
 import socket  
-import signal  
+import signal
+import datetime  
 import time   
 import getopt 
 import sys
@@ -130,7 +131,7 @@ class Server:
 	 request_method = string.split(' ')[0]
          
 	 request = string.split("\r\n")
-	 modified = [x for x in request if x.find("If-Modified-Since:") != -1]
+	 modified = [request for request in request if request.find("If-Modified-Since:") != -1]
 	 modified_date = None
 	 if modified != []:
 	 	date = modified[0].partition(":")[2]
@@ -170,9 +171,8 @@ class Server:
 				file_modified_ts = os.path.getmtime(dirname)
 				file_modified = datetime.fromtimestamp(file_modified_ts)
 				if file_modified < modified_date:
-					self.state304NotModified();
-					break
-						
+					raise ValueError					
+								
 			response_content = file_handler.read()                        
                  	file_handler.close()
                  
@@ -183,7 +183,13 @@ class Server:
 			response_content = self.processError(404)
 
    		 	log_file.write("Page: " + file_requested + "\n" + response_headers)	
-    
+
+    		except ValueError:
+			response_headers = self.state304NotModified()
+			response_content = self.processError(300)
+
+   		 	log_file.write("Page: " + file_requested + "\n" + response_headers)	
+
              	except Exception as e: 
 			response_headers = self.state400BadRequest()
                 	response_content = self.processError(400)
