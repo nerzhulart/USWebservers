@@ -9,10 +9,10 @@
 # standart content type, multi-threaded 
 
 # Start:
-# ./server.py [-h|--host=] host_name [-f|--file] log_file
+# ./server.py [-h|--host=] host_name [-f|--file=] log_file
 
 # Options:
-# [-h|--host] - host for connection, by default host is 8080
+# [-h|--host] - port for connection, by default port is 8080
 # [-f|--file] - file use for writing log, by default file is "log.txt"
 
 
@@ -23,6 +23,8 @@ import getopt
 import sys
 
 class Server:
+ errorHeaders = {304: "Not Modified", 400: "Bad Request", 404: "Not Found", 500: "Internal Server Error"}
+
  content_type = { \
 	"py" : "text/html; charset=utf-8", \
 	"txt" : "text/plain; charset=utf-8", \
@@ -37,6 +39,11 @@ class Server:
 	"pdf" : "application/pdf", \
 	"mpeg" : "video/mpeg" 
  }
+ 
+ def processError(self, errorNumber):
+	errorTitle = Server.errorHeaders[errorNumber]
+	errorMessage = "<html><body><p>Error" + str(errorNumber) + ":" + errorTitle + "</p><p>HTTP server</p></body></html>"
+	return errorMessage
 
  def state200OK(self):
      mes = 'HTTP/1.1 200 OK\n'
@@ -86,9 +93,10 @@ class Server:
          self.socket.bind((self.host, self.port))
 
      except Exception as e:
-         self.port = 8080
+	 print("Connect to specified port ", self.port, "is failed")        
+ 	 self.port = 8080
          try:
-             print("Trying to start server on ", self.host, " ",self.port)
+	     print("Trying to start server on ", self.host, " ",self.port)
              self.socket.bind((self.host, self.port))
 
          except Exception as e:
@@ -172,14 +180,14 @@ class Server:
 		 	log_file.write("Page: " + file_requested + "\n" + response_headers)			 
              	except IOError as e:
 			response_headers = self.state404NotFound()
-			response_content = b"<html><body><p>Error 404: File not found</p><p>HTTP server</p></body></html>"
-		 
+			response_content = self.processError(404)
+
    		 	log_file.write("Page: " + file_requested + "\n" + response_headers)	
     
              	except Exception as e: 
 			response_headers = self.state400BadRequest()
-                	response_content = b"<html><body><p>Error 400: Bad Request</p><p>HTTP server</p></body></html>"
-		 
+                	response_content = self.processError(400)
+
    			log_file.write("Page: " + file_requested + "\n" + response_headers)	
 		
              server_response =  response_headers.encode() 
