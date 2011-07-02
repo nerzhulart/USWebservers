@@ -9,10 +9,10 @@
 # standart content type, multi-threaded 
 
 # Start:
-# ./server.py [-h|--host=] host_name [-f|--file=] log_file
+# ./server.py [-p|--port=] host_name [-f|--file=] log_file
 
 # Options:
-# [-h|--host=] - port for connection, by default port is 8080
+# [-p|--port=] - port for connection, by default port is 8080
 # [-f|--file=] - file use for writing log, by default file is "log.txt"
 
 
@@ -214,14 +214,14 @@ def shutdown(sig, d):
 
 
 signal.signal(signal.SIGINT, shutdown)
-options, remainder = getopt.getopt(sys.argv[1:], 'h:f:', ['host=', 'file='])
+options, remainder = getopt.getopt(sys.argv[1:], 'p:f:', ['port=', 'file='])
 
 host = 8080
 log_file = "log.txt"
 for opt, arg in options:
     if opt in ('-f', '--file'):
         log_file = arg
-    elif opt in ('-h', '--host'):
+    elif opt in ('-p', '--port'):
         host = arg
 
 print ("Starting server...")
