@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # -*- coding: utf-8 -*-
 
 """
@@ -17,6 +18,8 @@ from os.path import relpath
 import socket
 import traceback
 from datetime import datetime
+from io import StringIO
+
 
 class HTTPError(Exception):
     pass
@@ -90,40 +93,39 @@ def serve_static(url, root):
                     return request.reply(304)
 
             mod_time = time.strftime(DATE_RFC1123, time.gmtime(stat.st_mtime))
+            data = open(path).read()
 
         except (OSError, IOError) as err:
             if err.errno == 2:
                 raise HTTPError(404)  # not found
             if err.errno == 13:
-                raise HTTPError(418)  # no access
+                raise HTTPError(404)  # no access
             if err.errno == 21:
-                raise HTTPError(418)  # is a directory
+                raise HTTPError(404)  # is a directory
             raise
 
         (head, ext) = os.path.splitext(path)
         if ext == ".py":
             try:
-                bufferFile = open("stdinerr", "w")
-                sys.stdout = bufferFile
-                sys.stderr = bufferFile
+
+                buffer = StringIO()
+                sys.stdout = buffer
+                sys.stderr = buffer
                 execfile(path)
-                bufferFile.close()
-                bufferFile = open("stdinerr", "r")
-                data = "\n".join(bufferFile.readlines())
-                bufferFile.close()
+                data = "\n".join(buffer.getValue())
+                buffer.close()
                 #stdout = os.popen("/usr/bin/python2.6 " + path, 'r')
                 #if not stdout:
                 #    data = 'empty stdout for program'
                 #else:
                 #    data = stdout.read()
                 #    stdout.close()
-            except:
+            except Exception, e:
+
                 raise HTTPError(500)
             finally:
                 sys.stdout = sys.__stdout__
                 sys.stderr = sys.__stderr__
-        else:
-            data = open(path).read()
 
         request.reply(body=data, code=200, content_type=allowed_content_type[ext], content_length=stat.st_size, last_modified=mod_time)
 
@@ -283,9 +285,8 @@ if __name__ == '__main__':
         port = 8090
     print port
 
-        
+
     root = '.'
     server = HTTPServer(port=port)
     server.register(*serve_static('/', root))
     server.serve()
-  
