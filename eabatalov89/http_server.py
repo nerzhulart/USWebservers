@@ -1,5 +1,13 @@
 #!/usr/bin/python2.6
 
+#--------------------------------USAGE---------------------------
+#http_server.py [port log]
+#port - port number to listen
+#log - log file to append
+#default is 8080 and std_out
+#argument order is significant
+#you must specify all arguments if you use any
+
 # date: 06/27/2011
 # mail: eabatalov89@gmail.com
 # program: simple http server 
