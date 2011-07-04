@@ -156,20 +156,16 @@ class Server:
 			response_headers = self.check_state(404)
 			response_content = self.processError(404)
 
-   		 	log_file.write("Page: " + file_requested + "\n" + response_headers)	
-
     		except ValueError:
 			response_headers = self.check_state(300)
 			response_content = self.processError(300)
-
-   		 	log_file.write("Page: " + file_requested + "\n" + response_headers)	
 
              	except Exception as e: 
 			response_headers = self.check_state(400)
                 	response_content = self.processError(400)
 
-   			log_file.write("Page: " + file_requested + "\n" + response_headers)	
-		
+		finally:
+   			log_file.write("Page: " + file_requested + "\n" + response_headers)		
              server_response =  response_headers.encode() 
              server_response +=  response_content  
 
