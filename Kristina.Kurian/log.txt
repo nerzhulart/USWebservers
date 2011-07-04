@@ -1,0 +1,217 @@
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:37
+Server: HTTP-Server
+Connection: close
+
+Page: page/index.html
+HTTP/1.1 200 OK
+Date: Mon, 04 Jul 2011 12:25:37
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:37
+Server: HTTP-Server
+Connection: close
+
+Page: page/styles.css
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:37
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:37
+Server: HTTP-Server
+Connection: close
+
+Page: page/image.jpg
+HTTP/1.1 200 OK
+Date: Mon, 04 Jul 2011 12:25:37
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:37
+Server: HTTP-Server
+Connection: close
+
+Page: page/favicon.ico
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:37
+Server: HTTP-Server
+Connection: close
+
+Page: page/page2.html
+HTTP/1.1 200 OK
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+Page: page/styles.css
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+Page: page/favicon.ico
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+Page: page/index.html
+HTTP/1.1 200 OK
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+Page: page/styles.css
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+Page: page/image.jpg
+HTTP/1.1 200 OK
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+Page: page/favicon.ico
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:39
+Server: HTTP-Server
+Connection: close
+
+Page: page/page1.html
+HTTP/1.1 200 OK
+Date: Mon, 04 Jul 2011 12:25:40
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:40
+Server: HTTP-Server
+Connection: close
+
+Page: page/styles.css
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:40
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:40
+Server: HTTP-Server
+Connection: close
+
+Page: page/favicon.ico
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:40
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:44
+Server: HTTP-Server
+Connection: close
+
+Page: page/aaaa
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:44
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:44
+Server: HTTP-Server
+Connection: close
+
+Page: page/favicon.ico
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:44
+Server: HTTP-Server
+Connection: close
+
+Page: page/Picture.gif
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:56
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:25:56
+Server: HTTP-Server
+Connection: close
+
+Page: page/favicon.ico
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:25:56
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:26:03
+Server: HTTP-Server
+Connection: close
+
+Page: page/test1,py
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:26:03
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:26:03
+Server: HTTP-Server
+Connection: close
+
+Page: page/favicon.ico
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:26:03
+Server: HTTP-Server
+Connection: close
+
+Page: /test1.py
+HTTP/1.1 200 OK
+Date: Mon, 04 Jul 2011 12:26:07
+Server: HTTP-Server
+Connection: close
+
+HTTP/1.1 400 Bad Request
+Date: Mon, 04 Jul 2011 12:26:07
+Server: HTTP-Server
+Connection: close
+
+Page: page/favicon.ico
+HTTP/1.1 404 Not Found
+Date: Mon, 04 Jul 2011 12:26:07
+Server: HTTP-Server
+Connection: close
+

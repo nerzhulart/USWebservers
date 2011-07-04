@@ -9,7 +9,7 @@
 # standart content type, multi-threaded 
 
 # Start:
-# ./server.py [-p|--port=] host_name [-f|--file=] log_file
+# ./server.py [-p|--port=] port_name [-f|--file=] log_file
 
 # Options:
 # [-p|--port=] - port for connection, by default port is 8080
@@ -24,7 +24,7 @@ import getopt
 import sys
 
 class Server:
- errorHeaders = {304: "Not Modified", 400: "Bad Request", 404: "Not Found", 500: "Internal Server Error"}
+ headers = {200:"OK", 304: "Not Modified", 400: "Bad Request", 404: "Not Found", 500: "Internal Server Error"}
 
  content_type = { \
 	"py" : "text/html; charset=utf-8", \
@@ -42,47 +42,19 @@ class Server:
  }
  
  def processError(self, errorNumber):
-     errorTitle = Server.errorHeaders[errorNumber]
+     errorTitle = Server.headers[errorNumber]
      errorMessage = "<html><body><p>Error" + str(errorNumber) + ":" + errorTitle + "</p><p>HTTP server</p></body></html>"
 
      return errorMessage
 
- def state200OK(self):
-     mes = 'HTTP/1.1 200 OK\n'
+ def check_state(self, number):
+     title = Server.headers[number]
+     mes = 'HTTP/1.1 ' + str(number) + ' ' + title + '\n'
      current_date = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
      mes += 'Date: ' + current_date +'\n' + 'Server: HTTP-Server\n' + 'Connection: close\n\n'  
 
-     return mes
+     return mes	
 
- def state304NotModified(self):
-     mes = 'HTTP/1.1 304 Not Modified\n' 	
-     current_date = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
-     mes += 'Date: ' + current_date +'\n' + 'Server: HTTP-Server\n' + 'Connection: close\n\n'  
-
-     return mes
- 
-
- def state400BadRequest(self):
-     mes = 'HTTP/1.1 400 Bad Request\n'
-     current_date = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
-     mes += 'Date: ' + current_date +'\n' + 'Server: HTTP-Server\n' + 'Connection: close\n\n'  
-
-     return mes
- 
- def state404NotFound(self):
-     mes = 'HTTP/1.1 404 Not Found\n'
-     current_date = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
-     mes += 'Date: ' + current_date +'\n' + 'Server: HTTP-Server\n' + 'Connection: close\n\n'  
-
-     return mes
- 
- def state500InternalServerError(self):
-     mes = 'HTTP/1.1 500 Internal Server Error\n'	
-     current_date = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
-     mes += 'Date: ' + current_date +'\n' + 'Server: HTTP-Server\n' + 'Connection: close\n\n'  
-
-     return mes
- 
  def __init__(self, port, filename):
      self.host = ''   
      self.port = int(port)
@@ -103,7 +75,7 @@ class Server:
              self.socket.bind((self.host, self.port))
 
          except Exception as e:
-	     mes = self.state500InternalServerError()
+	     mes = self.check_state(500)
 	     print mes	
 	     self.reset()
              sys.exit(1)
@@ -148,7 +120,7 @@ class Server:
 			raise Exception("ERROR: Wrong Content Type")
 	     	
 	     except Exception as e: 
-		mes = self.state400BadRequest()
+		mes = self.check_state(400)
 		log_file.write(mes)			 
 		     
 	     if expansion == "py":
@@ -157,7 +129,7 @@ class Server:
 		from subprocess import Popen, PIPE
 		command = "python " + tmpfile
 		response_content = Popen(command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read()	
-               	response_headers = self.state200OK()
+               	response_headers = self.check_state(200)
 	 	log_file.write("Page: " + file_requested + "\n" + response_headers)			 
 	     else:	
 	     	if (file_requested == '/'): 
@@ -178,22 +150,22 @@ class Server:
 			response_content = file_handler.read()                        
                  	file_handler.close()
                  
-                 	response_headers = self.state200OK()
+                 	response_headers = self.check_state(200)
 		 	log_file.write("Page: " + file_requested + "\n" + response_headers)			 
              	except IOError as e:
-			response_headers = self.state404NotFound()
+			response_headers = self.check_state(404)
 			response_content = self.processError(404)
 
    		 	log_file.write("Page: " + file_requested + "\n" + response_headers)	
 
     		except ValueError:
-			response_headers = self.state304NotModified()
+			response_headers = self.check_state(300)
 			response_content = self.processError(300)
 
    		 	log_file.write("Page: " + file_requested + "\n" + response_headers)	
 
              	except Exception as e: 
-			response_headers = self.state400BadRequest()
+			response_headers = self.check_state(400)
                 	response_content = self.processError(400)
 
    			log_file.write("Page: " + file_requested + "\n" + response_headers)	
@@ -205,7 +177,7 @@ class Server:
              conn.close()
 
          else:
-             mes = self.state400BadRequest()
+             mes = self.check_state(400)
 	     log_file.write(mes)	
 
 def shutdown(sig, d):
