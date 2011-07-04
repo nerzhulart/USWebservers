@@ -18,6 +18,7 @@ import socket
 import sys
 import os
 import datetime
+from cStringIO import StringIO
 
 #Log file
 logFile = open("log.txt","a")
@@ -25,6 +26,10 @@ logFile = open("log.txt","a")
 #Log message
 def log(msg):
 	logFile.write(str(datetime.datetime.now())+" "+msg+"\n")
+	logFile.flush()
+
+#Time format for 304
+timeFormat = '%Y-%m-%d %H:%M:%S'
 
 print "Server started"
 log("Server started")
@@ -42,7 +47,7 @@ contentType = {
 
 #Content header
 def ContentHeader(content):
-	return " Content-type: "+content+"\n\n"
+	return " Content-type: "+content+"\r\n\r\n"
 
 #HTTP Status Codes
 HTTPStatus = {
@@ -100,12 +105,12 @@ def HTTP500InternalError():
 
 
 #Query ecexutor
-def executeQuery(query):
+def executeQuery(query, dateModified):
 	queryList = query.split(' ')
 	method = queryList[0].upper()
 	if method == "GET":
 		try:
-			return openFile(queryList[1])
+			return openFile(queryList[1], dateModified)
 		except IndexError:
 			return HTTP400BadRequest(query)
 	else :
@@ -116,7 +121,7 @@ def executeQuery(query):
 
 
 #Try to open requested file
-def openFile(fileName):
+def openFile(fileName, dateModified):
 	#Default is index.html
 	if fileName == "/":
 		fileName = "/index.html"
@@ -128,35 +133,43 @@ def openFile(fileName):
 		#Python sctipt
 		try:
 			#Redirecting output
-			bufferFile = open("data", "w")
-			sys.stdout = bufferFile
-			sys.stderr = bufferFile
+			bufferString = StringIO()
+			sys.stdout = bufferString
+			sys.stderr = bufferString
 			#Executing
 			execfile("."+fileName)
-			bufferFile.close()
-			#Reading data properly
-			bufferFile = open("data", "r")
-			data = "<br>".join(bufferFile.readlines())
+
 			return HTTP200OK()+ContentHeader(contentType.get(".html"))+"<html><head><title>"+fileName+"</title></head> \
-			<body>"+data+"</body></html>"
+			<body>"+"<br>".join(bufferString.getvalue().split("\n"))+"</body></html>"
+
 		except IOError:
 			return HTTP404NotFound(fileName)
+
 		finally:
 			#Returning output to its standart values
 			sys.stdout = sys.__stdout__
 			sys.stderr = sys.__stderr__
+
 	else:
 		#Get content type
 		if contentType.get(ext) != None:
 			content = contentType[ext]
-		else:
-			#Unsupported media type
-			return HTTP415UnsupportedMediaType(ext)
 
 		#If file in not python script, but format is supported
 		try:
 			inFile = open("."+fileName, "r")
+
+			#Checking for 304
+			if dateModified != None:
+				if dateModified > datetime.datetime.fromtimestamp(os.path.getmtime(fileName)):
+					return HTTP304NotModified()				
+
+			if contentType.get(ext) == None:
+				#Unsupported media type
+				return HTTP415UnsupportedMediaType(ext)
+
 			return HTTP200OK()+ContentHeader(content)+inFile.read()
+
 		except IOError:
 			return HTTP404NotFound(fileName)
 		
@@ -181,13 +194,26 @@ try:
 		cSocket, cAddress = serverSocket.accept()
 		dataFile = cSocket.makefile('rw', 0) 
 		query = dataFile.readline().strip()
+
+		#Finding "If-Modified-Since"
+		dateModifiedStr = dataFile.readline()
+		dateModified = None
+		while dateModifiedStr.strip() != "":
+			if dateModifiedStr.split(':')[0] == "If-Modified-Since":			
+				dateModified = datetime.datetime.strptime(dateModifiedStr[len("If-Modified-Since:"):].strip(), timeFormat)			
+				break  
+			dateModifiedStr = dataFile.readline()	
+		
+		#Logging
 		log("Request "+query+" from "+str(cAddress))
 		#Executing query
-		result = executeQuery(query)
+		result = executeQuery(query, dateModified)
 		#Sending data to client
 		dataFile.write(result)
+
 		dataFile.close() 
 		cSocket.close()
+
 except KeyboardInterrupt:
 	pass
 finally:

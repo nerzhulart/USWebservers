@@ -1,5 +1,13 @@
 #!/usr/bin/python2.6
 
+#--------------------------------USAGE---------------------------
+#http_server.py [port log]
+#port - port number to listen
+#log - log file to append
+#default is 8080 and std_out
+#argument order is significant
+#you must specify all arguments if you use any
+
 # date: 06/27/2011
 # mail: eabatalov89@gmail.com
 # program: simple http server 
@@ -79,9 +87,9 @@ def parse_request(req_str):
    else:
       req_modif_since = match_ifmod.group(1).strip()
    
-   print req_file_path
-   print req_file_name
-   print req_file_ext
+   #print req_file_path
+   #print req_file_name
+   #print req_file_ext
 
 def req_file():
    return "./" + req_file_path + req_file_name + "." + req_file_ext
@@ -98,7 +106,7 @@ def internal_error(exception):
 
 def bad_request(req_str):
    if (not req_file_ext) or (not req_file_name):
-      return generate_response(400, "No file specified  \n" + req_str)
+      return generate_response(400, "No file specified  \n")
    else: 
       return None
 
@@ -121,7 +129,7 @@ def not_modified(req_str):
 
 def handle_file():
    if not ext_cont_type.has_key(req_file_ext):
-      return generate_response(400, "MIME type not supported: " + req_file())
+      return generate_response(400, "MIME type not supported for " + req_file())
    header = generate_response(200, req_file())
    header += "Content-Type: " + ext_cont_type[req_file_ext] + "\n"
    if req_file_ext == "py":
@@ -146,8 +154,8 @@ def process(req_str):
 #   try:
       parse_request(req_str)
 
-      print >>log_file, "INCOMING HTTP REQUEST:"
-      print >>log_file, req_str
+      #print >>log_file, "INCOMING HTTP REQUEST:"
+      #print >>log_file, req_str
       
       resp = bad_request(req_str)
       if resp: return resp
@@ -197,7 +205,7 @@ def init():
    print >>log_file, "server ready"
    while 1:
       cl_socket, cl_addr = lsn_socket.accept()
-      print >>log_file, "connection accepted from ", cl_addr
+      #print >>log_file, "connection accepted from ", cl_addr
       data = cl_socket.recv(4096)
       response = process(data)
       cl_socket.send(response)

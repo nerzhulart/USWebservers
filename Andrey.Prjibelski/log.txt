@@ -1,16 +1,46 @@
-2011-06-27 02:56:47.677439 Server started
-2011-06-27 02:56:55.189558 Request GET /test2.pyt HTTP/1.1 from ('127.0.0.1', 57131)
-2011-06-27 02:56:55.189735 415 Unsupported Media Type Requested file seems to have unsupported extention .pyt.
-2011-06-27 02:57:03.548821 Request GET /test2.avi HTTP/1.1 from ('127.0.0.1', 57133)
-2011-06-27 02:57:03.549129 404 Not Found /test2.avi cannot be found.
-2011-06-27 02:57:18.120333 Request GET /test2 HTTP/1.1 from ('127.0.0.1', 57136)
-2011-06-27 02:57:18.120486 415 Unsupported Media Type Requested file seems to have unsupported extention .
-2011-06-27 02:57:21.886032 Request GET / HTTP/1.1 from ('127.0.0.1', 57138)
-2011-06-27 02:57:21.886242 200 OK
-2011-06-27 02:57:31.612913 Request GET /test1.py HTTP/1.1 from ('127.0.0.1', 57140)
-2011-06-27 02:57:31.614823 200 OK
-2011-06-27 02:57:38.268266 Server shutted down.
-2011-06-27 02:59:57.572340 Server started
-2011-06-27 03:00:12.114781 Request GET /GQ.png HTTP/1.1 from ('127.0.0.1', 58777)
-2011-06-27 03:00:12.114998 200 OK
-2011-06-27 03:00:17.108288 Server shutted down.
+2011-06-27 12:57:50.584258 Server started
+2011-06-27 12:57:53.503186 Request GET / HTTP/1.1 from ('127.0.0.1', 55652)
+2011-06-27 12:57:53.503452 200 OK
+2011-06-27 12:57:53.579948 Request GET /favicon.ico HTTP/1.1 from ('127.0.0.1', 55653)
+2011-06-27 12:57:53.580261 404 Not Found /favicon.ico cannot be found.
+2011-06-27 12:58:08.156909 Request GET /test2.py HTTP/1.1 from ('127.0.0.1', 55655)
+2011-06-27 12:58:08.157495 200 OK
+2011-06-27 12:58:08.217323 Request GET /favicon.ico HTTP/1.1 from ('127.0.0.1', 55656)
+2011-06-27 12:58:08.217629 404 Not Found /favicon.ico cannot be found.
+2011-06-27 12:58:12.113045 Request GET /GQ.png HTTP/1.1 from ('127.0.0.1', 55657)
+2011-06-27 12:58:12.113301 200 OK
+2011-06-27 12:58:12.231865 Request GET /favicon.ico HTTP/1.1 from ('127.0.0.1', 55658)
+2011-06-27 12:58:12.232341 404 Not Found /favicon.ico cannot be found.
+2011-06-27 12:58:15.442049 Request GET / HTTP/1.1 from ('127.0.0.1', 55659)
+2011-06-27 12:58:15.442359 200 OK
+2011-06-27 13:01:38.464294 Request GET / HTTP/1.1 from ('127.0.0.1', 57546)
+2011-06-27 13:01:38.464606 200 OK
+2011-06-27 13:01:46.724711 Request GET /test2.py HTTP/1.1 from ('127.0.0.1', 57547)
+2011-06-27 13:01:46.725335 200 OK
+2011-06-27 13:01:46.773969 Request GET /favicon.ico HTTP/1.1 from ('127.0.0.1', 57548)
+2011-06-27 13:01:46.774291 404 Not Found /favicon.ico cannot be found.
+2011-06-27 13:02:42.752099 Server shutted down.
+2011-07-04 13:59:44.044617 Server started
+2011-07-04 14:00:10.717311 Request GET / HTTP/1.1 from ('127.0.0.1', 57886)
+2011-07-04 14:00:10.717595 200 OK
+2011-07-04 14:00:10.904966 Request GET /favicon.ico HTTP/1.1 from ('127.0.0.1', 57887)
+2011-07-04 14:00:10.905304 404 Not Found /favicon.ico cannot be found.
+2011-07-04 14:00:18.685673 Request GET /test1.py HTTP/1.1 from ('127.0.0.1', 57891)
+2011-07-04 14:00:18.707683 200 OK
+2011-07-04 14:00:18.775521 Request GET /favicon.ico HTTP/1.1 from ('127.0.0.1', 57893)
+2011-07-04 14:00:18.775930 404 Not Found /favicon.ico cannot be found.
+2011-07-04 14:00:26.075573 Request GET /GQ.png HTTP/1.1 from ('127.0.0.1', 57895)
+2011-07-04 14:00:26.075873 200 OK
+2011-07-04 14:00:26.463846 Request GET /favicon.ico HTTP/1.1 from ('127.0.0.1', 57897)
+2011-07-04 14:00:26.464159 404 Not Found /favicon.ico cannot be found.
+2011-07-04 14:00:30.779785 Server shutted down.
+2011-07-04 14:01:13.336726 Server started
+2011-07-04 14:01:17.581628 Request GET /GQ.png HTTP/1.1 from ('127.0.0.1', 57899)
+2011-07-04 14:01:17.581904 200 OK
+2011-07-04 14:01:17.944116 Request GET /favicon.ico HTTP/1.1 from ('127.0.0.1', 57901)
+2011-07-04 14:01:17.944366 404 Not Found /favicon.ico cannot be found.
+2011-07-04 14:01:27.751389 Request GET /index.htm HTTP/1.1 from ('127.0.0.1', 57905)
+2011-07-04 14:01:27.751744 404 Not Found /index.htm cannot be found.
+2011-07-04 14:01:27.828357 Request GET /favicon.ico HTTP/1.1 from ('127.0.0.1', 57907)
+2011-07-04 14:01:27.828672 404 Not Found /favicon.ico cannot be found.
+2011-07-04 14:02:32.036843 Server shutted down.
